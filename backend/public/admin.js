@@ -6,7 +6,6 @@ const BASE_URL = window.location.hostname.includes("localhost")
   ? "http://localhost:5000"
   : "https://trackfast.onrender.com";
 
-// ✅ Always build API URLs from BASE_URL
 const API = (path) => `${BASE_URL}${path}`;
 
 const statuses = [
@@ -24,19 +23,20 @@ const statusFilter = document.getElementById("statusFilter");
 const stateFilter = document.getElementById("stateFilter");
 const table = document.getElementById("parcelTable");
 
+// Stats DOM
 const totalEl = document.getElementById("total");
 const activeEl = document.getElementById("active");
 const pausedEl = document.getElementById("paused");
 const deliveredEl = document.getElementById("delivered");
 
-// Update modal
+// Update modal DOM
 const updateModal = document.getElementById("updateModal");
 const updateStatus = document.getElementById("updateStatus");
 const updateLocation = document.getElementById("updateLocation");
 const cancelUpdate = document.getElementById("cancelUpdate");
 const saveUpdate = document.getElementById("saveUpdate");
 
-// Edit modal
+// Edit modal DOM
 const editModal = document.getElementById("editModal");
 const editSender = document.getElementById("editSender");
 const editReceiver = document.getElementById("editReceiver");
@@ -48,13 +48,13 @@ const editStatus = document.getElementById("editStatus");
 const cancelEdit = document.getElementById("cancelEdit");
 const saveEdit = document.getElementById("saveEdit");
 
-// Delete modal
+// Delete modal DOM
 const deleteModal = document.getElementById("deleteModal");
 const deleteParcelIdEl = document.getElementById("deleteParcelId");
 const cancelDelete = document.getElementById("cancelDelete");
 const confirmDelete = document.getElementById("confirmDelete");
 
-// Pause modal
+// Pause modal DOM (make sure you have pauseModal in admin.html)
 const pauseModal = document.getElementById("pauseModal");
 const pauseParcelIdEl = document.getElementById("pauseParcelId");
 const pauseReasonEl = document.getElementById("pauseReason");
@@ -95,7 +95,6 @@ async function safeJson(res) {
   return { message: await res.text() };
 }
 
-// ✅ All admin requests go through here
 async function apiFetch(path, options = {}) {
   if (!requireAuthOrRedirect()) throw new Error("Not authenticated");
 
@@ -115,7 +114,6 @@ async function apiFetch(path, options = {}) {
   }
 
   if (!res.ok) {
-    // helpful debug
     console.error("API ERROR:", res.status, path, data);
     throw new Error(data.message || "Request failed");
   }
@@ -198,9 +196,7 @@ document.addEventListener("keydown", (e) => {
 // FETCH
 // =====================
 async function fetchParcels() {
-  // ✅ this is the only place we load dashboard data
   parcels = await apiFetch("/api/parcels");
-  console.log("Loaded parcels:", parcels.length); // debug
 }
 
 // =====================
@@ -239,15 +235,27 @@ function renderDashboard() {
     // Pause / Resume
     row.querySelector(".pause, .resume").onclick = async () => {
       try {
+        // Pause => open modal to enter reason
         if (!isPaused) {
           pendingPauseId = p.id;
-          pauseParcelIdEl && (pauseParcelIdEl.textContent = p.id);
-          pauseReasonEl && (pauseReasonEl.value = "");
+
+          if (!pauseModal || !pauseReasonEl || !pauseParcelIdEl) {
+            window.showToast?.(
+              "Pause modal missing in admin.html",
+              "error",
+              "UI"
+            );
+            return;
+          }
+
+          pauseParcelIdEl.textContent = p.id;
+          pauseReasonEl.value = "";
           openModal(pauseModal);
-          setTimeout(() => pauseReasonEl?.focus(), 50);
+          setTimeout(() => pauseReasonEl.focus(), 80);
           return;
         }
 
+        // Resume => call API
         await apiFetch(`/api/parcels/${p.id}/state`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -312,10 +320,11 @@ confirmPause?.addEventListener("click", async () => {
     confirmPause.disabled = true;
     confirmPause.textContent = "Pausing...";
 
+    // ✅ FIX: send pauseMessage (matches backend)
     await apiFetch(`/api/parcels/${pendingPauseId}/state`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ state: "paused", message: reason }),
+      body: JSON.stringify({ state: "paused", pauseMessage: reason }),
     });
 
     window.showToast?.("Parcel paused", "success", "Updated");
