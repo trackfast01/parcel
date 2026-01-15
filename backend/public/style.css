@@ -8,7 +8,7 @@
 body {
   min-height: 100vh;
   background: linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)),
-    url("adm.jpg");
+    url("admm.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -234,7 +234,7 @@ button:hover {
   inset: 0;
   background: black;
   background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-    url("adm.jpg");
+    url("admm.jpg");
   background-size: cover;
   background-position: center;
   background: blur(20px);
@@ -1157,7 +1157,7 @@ button:hover {
   align-items: center;
   justify-content: center;
   background: linear-gradient(rgba(2, 6, 23, 0.75), rgba(2, 6, 23, 0.85)),
-    url("adm.jpg");
+    url("admm.jpg");
   background-size: cover;
   background-position: center;
   backdrop-filter: blur(14px);
