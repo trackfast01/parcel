@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parcel Tracking</title>
+    <link rel="stylesheet" href="style.css?v=2" />
+    <link rel="stylesheet" href="toast.css" />
+    <!-- 3D & FX Libraries -->
+    <!-- 3D & FX Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <!-- BACKGROUND OVERLAY -->
+    <div class="bg-overlay"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="logo">TrackFast</div>
+      <ul class="nav-links">
+        <li><a href="#">Home</a></li>
+        <li><a href="#track">Track</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#" id="adminTrigger">Admin</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <main class="container" id="track">
+      
+      <div class="hero-wrapper">
+        <!-- LEFT COLUMN: TEXT + STATS -->
+        <div class="hero-left">
+          <h1>Track Your <br><span class="highlight">Global Shipments</span></h1>
+          <p class="subtitle">
+            Experience seamless, secure, and real-time tracking for all your logistics needs. 
+            Join millions who trust TrackFast for their delivery solutions.
+          </p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <h2>10M+</h2>
+              <p>Users</p>
+            </div>
+            <div class="stat-item">
+              <h2>$50B+</h2>
+              <p>Value Shipped</p>
+            </div>
+            <div class="stat-item">
+              <h2>99.9%</h2>
+              <p>Success Rate</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: TRACKING CARD -->
+        <div class="hero-right">
+          <div class="card premium-card">
+            <h2>Track Parcel</h2>
+            
+            <div class="track-box-vertical">
+              <label>Tracking Number</label>
+              <input
+                type="text"
+                id="trackingInput"
+                placeholder="TRK-XXXXXXXX"
+              />
+              <button id="trackBtn">Track Shipment</button>
+            </div>
+
+            <!-- LOADING -->
+            <div class="loader" id="loader"></div>
+
+            <!-- RESULT -->
+            <div class="result" id="result"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NEW: FEATURES SECTION -->
+      <section class="features-section" id="features">
+        <div class="feature-card">
+          <div class="icon">🚀</div>
+          <h3>Global Speed</h3>
+          <p>Express delivery options to over 220 countries and territories worldwide.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🛡️</div>
+          <h3>Secure Handling</h3>
+          <p>Advanced security protocols ensuring your package arrives safely every time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="icon">🎧</div>
+          <h3>24/7 Support</h3>
+          <p>Our dedicated support team is available around the clock to assist you.</p>
+        </div>
+      </section>
+
+      <!-- NEW: REVIEWS SECTION -->
+      <section class="reviews-section" id="reviews">
+        <h3>Trusted by Customers</h3>
+        
+        <div class="marquee-wrapper">
+          <div class="marquee-content">
+            <!-- Set 1 -->
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" />
+                <div>
+                  <div class="author">Sarah Jenkins</div>
+                  <div class="location">United Kingdom</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"I was amazed by the speed! TrackFast gave me real-time updates every step of the way."</p>
+            </div>
+
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" />
+                <div>
+                  <div class="author">Michael Chen</div>
+                  <div class="location">Singapore</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"The best tracking interface I have ever used. Most services remain vague, but not this one."</p>
+            </div>
+
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="User" />
+                <div>
+                  <div class="author">David Smith</div>
+                  <div class="location">USA</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"Secure, fast, and reliable. Used for urgent documents and executed flawlessly."</p>
+            </div>
+
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User" />
+                <div>
+                  <div class="author">Emma Wilson</div>
+                  <div class="location">Canada</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"Customer support was incredibly helpful when I had questions about customs."</p>
+            </div>
+
+            <!-- Set 2 (Duplicate for Loop) -->
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" />
+                <div>
+                  <div class="author">Sarah Jenkins</div>
+                  <div class="location">United Kingdom</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"I was amazed by the speed! TrackFast gave me real-time updates every step of the way."</p>
+            </div>
+
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" />
+                <div>
+                  <div class="author">Michael Chen</div>
+                  <div class="location">Singapore</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"The best tracking interface I have ever used. Most services remain vague, but not this one."</p>
+            </div>
+
+            <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/men/86.jpg" alt="User" />
+                <div>
+                  <div class="author">David Smith</div>
+                  <div class="location">USA</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"Secure, fast, and reliable. Used for urgent documents and executed flawlessly."</p>
+            </div>
+
+             <div class="review-card">
+              <div class="review-header">
+                <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="User" />
+                <div>
+                  <div class="author">Emma Wilson</div>
+                  <div class="location">Canada</div>
+                </div>
+              </div>
+              <div class="stars">⭐⭐⭐⭐⭐</div>
+              <p>"Customer support was incredibly helpful when I had questions about customs."</p>
+            </div>
+            
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div class="modal" id="adminModal">
+      <div class="modal-content">
+        <h2>Admin Login</h2>
+        <!-- Added role hint hidden field if needed, but login handles it -->
+        <input id="adminEmail" type="email" placeholder="Email" />
+        <input id="adminPassword" type="password" placeholder="Password" />
+
+        <button id="adminLoginBtn" type="button">Login</button>
+      </div>
+    </div>
+
+    <!-- LIVE CHAT WIDGET -->
+    <div id="chat-widget">
+      <button id="chat-toggle">💬 Support</button>
+      <div id="chat-box" class="hidden">
+        <div class="chat-header">
+          <span>Live Support</span>
+          <button id="chat-close">✕</button>
+        </div>
+        <div id="chat-messages"></div>
+        <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Type a message..." />
+          <button id="chat-send">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <p>&copy; 2026 TrackFast Logistics.</p>
+    </footer>
+
+    <div id="toast-root"></div>
+    <script src="toast.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

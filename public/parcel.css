@@ -1,0 +1,239 @@
+/* =========================
+   GLOBAL RESET
+   ========================= */
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f8;
+  color: #0f172a;
+}
+
+/* =========================
+   SIDEBAR
+   ========================= */
+.sidebar {
+  width: 220px;
+  background: #0f172a;
+  color: #fff;
+  padding: 18px;
+  position: fixed;
+  height: 100vh;
+}
+
+.sidebar h2 {
+  margin-bottom: 24px;
+  color: #00ffbf;
+  font-size: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.sidebar li:hover,
+.sidebar .active {
+  background: #1e293b;
+}
+
+/* =========================
+   MAIN
+   ========================= */
+.main {
+  margin-left: 240px;
+  flex: 1;
+  padding: 24px;
+}
+
+.page-head {
+  margin-bottom: 14px;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.page-head p {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+/* =========================
+   FORM CARD (COMPACT)
+   ========================= */
+.card {
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  max-width: 760px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+/* INPUT GROUP */
+.group label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.group input,
+.group textarea,
+.group select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+}
+
+.group textarea {
+  resize: none;
+  height: 70px;
+}
+
+/* FOCUS */
+.group input:focus,
+.group textarea:focus,
+.group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* =========================
+   ACTION BUTTONS
+   ========================= */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.btn-soft {
+  background: #e5e7eb;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =========================
+   MOBILE RESPONSIVE
+   ========================= */
+@media (max-width: 900px) {
+  body {
+    flex-direction: column;
+  }
+
+  /* Sidebar becomes top section */
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+    padding: 14px 16px;
+  }
+
+  .sidebar h2 {
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+
+  .sidebar ul {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+  }
+
+  .sidebar li {
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  /* Main */
+  .main {
+    margin-left: 0;
+    padding: 16px;
+  }
+
+  .page-head h1 {
+    font-size: 20px;
+  }
+
+  /* Form */
+  .card {
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}
+
+/* =========================
+   SMALL PHONES
+   ========================= */
+@media (max-width: 480px) {
+  .page-head h1 {
+    font-size: 18px;
+  }
+
+  .group input,
+  .group textarea,
+  .group select {
+    font-size: 12px;
+    padding: 9px 10px;
+  }
+
+  .btn-primary,
+  .btn-soft {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
