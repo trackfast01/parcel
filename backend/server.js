@@ -526,6 +526,5 @@ app.get("/api/chat/:sessionId", async (req, res) => {
   }
 })();
 
-})();
-
 module.exports = app; // Export for Vercel
+
