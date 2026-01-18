@@ -174,6 +174,16 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, message: "TrackFast API running" });
 });
 
+// DEBUG: Test Env Vars
+app.get("/api/test-env", (req, res) => {
+  res.json({
+    mongo_prefix: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 20) + "..." : "MISSING",
+    admin_email: process.env.ADMIN_EMAIL || "MISSING",
+    jwt_secret_exists: !!process.env.JWT_SECRET
+  });
+});
+
+
 // Frontend entry
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
@@ -488,6 +498,9 @@ app.get("/api/chat/:sessionId", async (req, res) => {
     
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ MongoDB connected");
+    console.log("DEBUG ENV: MONGO_URI starts with", process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 15) : "undefined");
+    console.log("DEBUG ENV: ADMIN_EMAIL is", process.env.ADMIN_EMAIL);
+
 
     // Seed Super Admin if needed
     const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
@@ -521,3 +534,4 @@ app.get("/api/chat/:sessionId", async (req, res) => {
   }
 })();
 
+module.exports = app; // Export for Vercel
