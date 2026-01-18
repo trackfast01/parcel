@@ -7,12 +7,30 @@
 
     <link rel="stylesheet" href="admin.css" />
     <link rel="stylesheet" href="toast.css" />
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
 
     <script>
       if (!localStorage.getItem("adminToken")) {
         window.location.replace("index.html");
       }
     </script>
+    <style>
+      /* Quick styles for new sections */
+      .hidden { display: none !important; }
+      .chat-layout { display: flex; gap: 20px; height: 600px; margin-top: 20px; }
+      .chat-sidebar { width: 250px; background: rgba(255,255,255,0.05); border-radius: 12px; overflow-y: auto; }
+      .chat-main { flex: 1; background: rgba(255,255,255,0.05); border-radius: 12px; display: flex; flex-direction: column; }
+      .session-item { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+      .session-item:hover, .session-item.active { background: rgba(255,255,255,0.1); }
+      .chat-msgs { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+      .chat-input-box { padding: 15px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px; }
+      .chat-input-box input { flex: 1; padding: 10px; border-radius: 8px; border: none; }
+      
+      .msg { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+      .msg.user { align-self: flex-start; background: #334155; color: #fff; }
+      .msg.admin { align-self: flex-end; background: #00ffbf; color: #022c22; }
+    </style>
   </head>
 
   <body>
@@ -20,12 +38,19 @@
     <aside class="sidebar">
       <h2>TrackFast</h2>
       <ul>
-        <li onclick="window.location.href='admin.html'">Dashboard</li>
-        <li onclick="window.location.href='admin.html'">Parcels</li>
+        <li onclick="showSection('dashboard')" id="nav-dashboard" class="active">Dashboard</li>
+        <li onclick="showSection('parcels')" id="nav-parcels">Parcels</li>
         <li onclick="window.location.href='parcel.html'">Create Parcel</li>
+        
+        <!-- Super Admin Only -->
+        <li onclick="showSection('agents')" id="nav-agents" class="hidden">Agents</li>
+        
+        <!-- Live Chat -->
+        <li onclick="showSection('messages')" id="nav-messages">Messages <span id="msg-badge" style="display:none; background:red; padding:2px 6px; border-radius:50%; font-size:10px;">•</span></li>
 
         <li
           onclick="localStorage.removeItem('adminToken'); window.location.href='index.html'"
+          style="margin-top: auto; color: #ef4444;"
         >
           Logout
         </li>
@@ -34,68 +59,117 @@
 
     <!-- MAIN -->
     <main class="main">
-      <h1>Admin Dashboard</h1>
-
-      <!-- STATS -->
-      <div class="stats">
-        <div class="card">
-          <h3>Total Parcels</h3>
-          <p id="total">0</p>
-        </div>
-        <div class="card">
-          <h3>Active</h3>
-          <p id="active">0</p>
-        </div>
-        <div class="card">
-          <h3>Paused</h3>
-          <p id="paused">0</p>
-        </div>
-        <div class="card">
-          <h3>Delivered</h3>
-          <p id="delivered">0</p>
-        </div>
+      <div class="top-bar" style="display:flex; justify-content:space-between; margin-bottom:20px;">
+        <h1 id="page-title">Dashboard</h1>
+        <div id="user-role-badge" style="background:#334155; padding:5px 10px; border-radius:8px; font-size:12px;">Admin</div>
       </div>
 
-      <div class="filters">
-        <input
-          type="text"
-          id="searchInput"
-          placeholder="Search by Tracking ID..."
-        />
+      <!-- DASHBOARD SECTION -->
+      <section id="dashboard-section">
+        <!-- STATS -->
+        <div class="stats">
+          <div class="card">
+            <h3>Total Parcels</h3>
+            <p id="total">0</p>
+          </div>
+          <div class="card">
+            <h3>Active</h3>
+            <p id="active">0</p>
+          </div>
+          <div class="card">
+            <h3>Paused</h3>
+            <p id="paused">0</p>
+          </div>
+          <div class="card">
+            <h3>Delivered</h3>
+            <p id="delivered">0</p>
+          </div>
+        </div>
+      </section>
 
-        <select id="statusFilter">
-          <option value="">All Statuses</option>
-          <option>Order Received</option>
-          <option>Processing</option>
-          <option>Dispatched</option>
-          <option>In Transit</option>
-          <option>Out for Delivery</option>
-          <option>Delivered</option>
-        </select>
+      <!-- PARCELS SECTION -->
+      <section id="parcels-section" class="hidden">
+        <div class="filters">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by Tracking ID..."
+          />
 
-        <select id="stateFilter">
-          <option value="">All States</option>
-          <option value="active">Active</option>
-          <option value="paused">Paused</option>
-        </select>
-      </div>
+          <select id="statusFilter">
+            <option value="">All Statuses</option>
+            <option>Order Received</option>
+            <option>Processing</option>
+            <option>Dispatched</option>
+            <option>In Transit</option>
+            <option>Out for Delivery</option>
+            <option>Delivered</option>
+          </select>
 
-      <!-- TABLE -->
-      <div class="table-box">
-        <h2>Parcels</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Tracking ID</th>
-              <th>Status</th>
-              <th>Location</th>
-              <th>State</th>
-              <th style="width: 320px">Action</th>
-            </tr>
-          </thead>
-          <tbody id="parcelTable"></tbody>
-        </table>
-      </div>
+          <select id="stateFilter">
+            <option value="">All States</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-box">
+          <h2>Parcels List</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Tracking ID</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>State</th>
+                <th style="width: 320px">Action</th>
+              </tr>
+            </thead>
+            <tbody id="parcelTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- AGENTS SECTION (SUPER ADMIN) -->
+      <section id="agents-section" class="hidden">
+        <div class="table-box">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h2>Agents Management</h2>
+            <button onclick="openAgentModal()" class="btn-primary">+ Add New Agent</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="agentsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MESSAGES SECTION -->
+      <section id="messages-section" class="hidden">
+        <div class="chat-layout">
+          <div class="chat-sidebar" id="chat-sessions-list">
+            <!-- Session items will go here -->
+            <div style="padding:15px; opacity:0.5;">Loading sessions...</div>
+          </div>
+          <div class="chat-main">
+            <div id="chat-active-header" style="padding:15px; border-bottom:1px solid rgba(255,255,255,0.1); font-weight:bold;">Select a conversation</div>
+            <div class="chat-msgs" id="admin-chat-msgs"></div>
+            <div class="chat-input-box">
+              <input type="text" id="admin-chat-input" placeholder="Type a reply..." disabled />
+              <button id="admin-chat-send" class="btn-primary" disabled>Reply</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- UPDATE MODAL -->
@@ -103,30 +177,17 @@
       <div class="modal-card">
         <div class="modal-head">
           <h3>Add Tracking Update</h3>
-          <button class="modal-x" type="button" data-close="updateModal">
-            ✕
-          </button>
+          <button class="modal-x" type="button" data-close="updateModal">✕</button>
         </div>
-
         <div class="modal-body">
           <label>Status</label>
           <select id="updateStatus"></select>
-
           <label>Location</label>
-          <input
-            id="updateLocation"
-            type="text"
-            placeholder="e.g. Accra, Ghana"
-          />
+          <input id="updateLocation" type="text" placeholder="e.g. Accra, Ghana" />
         </div>
-
         <div class="modal-actions">
-          <button id="cancelUpdate" type="button" class="btn-soft">
-            Cancel
-          </button>
-          <button id="saveUpdate" type="button" class="btn-primary">
-            Save Update
-          </button>
+          <button id="cancelUpdate" type="button" class="btn-soft">Cancel</button>
+          <button id="saveUpdate" type="button" class="btn-primary">Save Update</button>
         </div>
       </div>
     </div>
@@ -136,78 +197,50 @@
       <div class="modal-card modal-card-scroll">
         <div class="modal-head">
           <h3>Edit Parcel</h3>
-          <button class="modal-x" type="button" data-close="editModal">
-            ✕
-          </button>
+          <button class="modal-x" type="button" data-close="editModal">✕</button>
         </div>
-
         <div class="modal-body">
           <label>Sender</label>
           <input id="editSender" type="text" placeholder="Sender name" />
-
           <label>Receiver</label>
           <input id="editReceiver" type="text" placeholder="Receiver name" />
-
           <label>Contact</label>
           <input id="editContact" type="text" placeholder="Phone / Email" />
-
           <label>Origin</label>
           <input id="editOrigin" type="text" placeholder="Origin" />
-
           <label>Destination</label>
           <input id="editDestination" type="text" placeholder="Destination" />
-
           <label>Estimated Delivery</label>
           <input id="editEstimated" type="date" />
-
           <label>Status</label>
           <select id="editStatus"></select>
         </div>
-
         <div class="modal-actions">
           <button id="cancelEdit" type="button" class="btn-soft">Cancel</button>
-          <button id="saveEdit" type="button" class="btn-primary">
-            Save Changes
-          </button>
+          <button id="saveEdit" type="button" class="btn-primary">Save Changes</button>
         </div>
       </div>
     </div>
 
-    <!-- ✅ NEW: PAUSE REASON MODAL -->
+    <!-- PAUSE MODAL -->
     <div class="modal" id="pauseModal" style="display: none">
       <div class="modal-card">
         <div class="modal-head">
           <h3>Pause Parcel</h3>
-          <button class="modal-x" type="button" data-close="pauseModal">
-            ✕
-          </button>
+          <button class="modal-x" type="button" data-close="pauseModal">✕</button>
         </div>
-
         <div class="modal-body">
-          <p style="margin-bottom: 10px; opacity: 0.85">
-            Add a reason to show customers while tracking is paused.
-          </p>
-
+          <p style="margin-bottom: 10px; opacity: 0.85">Add a reason to show customers.</p>
           <div class="danger-box" style="margin-bottom: 12px">
             <span>Tracking ID</span>
             <strong id="pauseParcelId">—</strong>
           </div>
-
           <label>Pause message</label>
-          <textarea
-            id="pauseMessage"
-            rows="3"
-            placeholder="e.g. Customs delay..."
-          ></textarea>
+          <textarea id="pauseMessage" rows="3" placeholder="e.g. Customs delay..."></textarea>
         </div>
-
         <div class="modal-actions">
-          <button id="cancelPause" type="button" class="btn-soft">
-            Cancel
-          </button>
-          <button id="confirmPause" type="button" class="btn-primary">
-            Pause Now
-          </button>
+          <button id="cancelPause" type="button" class="btn-soft">Cancel</button>
+          <button id="confirmPause" type="button" class="btn-primary">Pause Now</button>
         </div>
       </div>
     </div>
@@ -217,11 +250,8 @@
       <div class="modal-card">
         <div class="modal-head">
           <h3>Delete Parcel</h3>
-          <button class="modal-x" type="button" data-close="deleteModal">
-            ✕
-          </button>
+          <button class="modal-x" type="button" data-close="deleteModal">✕</button>
         </div>
-
         <div class="modal-body">
           <p class="danger-text">This action cannot be undone.</p>
           <div class="danger-box">
@@ -229,14 +259,49 @@
             <strong id="deleteParcelId">—</strong>
           </div>
         </div>
-
         <div class="modal-actions">
-          <button id="cancelDelete" type="button" class="btn-soft">
-            Cancel
-          </button>
-          <button id="confirmDelete" type="button" class="btn-danger">
-            Yes, Delete
-          </button>
+          <button id="cancelDelete" type="button" class="btn-soft">Cancel</button>
+          <button id="confirmDelete" type="button" class="btn-danger">Yes, Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENT CREATE MODAL -->
+    <div class="modal" id="agentModal" style="display: none">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h3>Create New Agent</h3>
+          <button class="modal-x" type="button" onclick="closeAgentModal()">✕</button>
+        </div>
+        <div class="modal-body">
+          <label>Email</label>
+          <input id="agentEmail" type="email" placeholder="agent@trackfast.com" />
+          <label>Password</label>
+          <input id="agentPassword" type="text" placeholder="Temporary Password" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-soft" onclick="closeAgentModal()">Cancel</button>
+          <button id="saveAgentBtn" type="button" class="btn-primary">Create Agent</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="agentDeleteModal" style="display: none">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h3>Remove Agent</h3>
+          <button class="modal-x" type="button" data-close="agentDeleteModal">✕</button>
+        </div>
+        <div class="modal-body">
+          <p class="danger-text">This will remove access for this agent.</p>
+          <div class="danger-box">
+            <span>Agent Email</span>
+            <strong id="deleteAgentEmail">—</strong>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-soft" data-close="agentDeleteModal">Cancel</button>
+          <button id="confirmAgentDelete" type="button" class="btn-danger">Yes, Remove</button>
         </div>
       </div>
     </div>

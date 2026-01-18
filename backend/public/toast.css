@@ -87,3 +87,18 @@
     align-items: center;
   }
 }
+/* =========================
+   TOAST FIX (ADMIN LOGIN)
+   ========================= */
+
+#toast-root {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999; /* MUST be higher than modal */
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+}

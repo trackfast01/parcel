@@ -23,11 +23,18 @@ const ParcelSchema = new mongoose.Schema(
     estimated_delivery: { type: String, default: "" },
 
     state: { type: String, enum: ["active", "paused"], default: "active" },
+    pause_message: { type: String, default: "" }, // Added missing field
+
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin",
+      required: true, 
+    },
 
     createdAt: { type: Date, default: Date.now },
     timeline: { type: [TimelineSchema], default: [] },
   },
-  { versionKey: false }
+  { versionKey: false } // Keeping versionKey false as in previous file
 );
 
 module.exports = mongoose.model("Parcel", ParcelSchema);
