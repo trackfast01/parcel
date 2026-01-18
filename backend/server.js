@@ -174,6 +174,16 @@ app.get("/api/health", (req, res) => {
   res.json({ ok: true, message: "TrackFast API running" });
 });
 
+// DEBUG: Test Env Vars
+app.get("/api/test-env", (req, res) => {
+  res.json({
+    mongo_prefix: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 20) + "..." : "MISSING",
+    admin_email: process.env.ADMIN_EMAIL || "MISSING",
+    jwt_secret_exists: !!process.env.JWT_SECRET
+  });
+});
+
+
 // Frontend entry
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
