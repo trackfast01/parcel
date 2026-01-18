@@ -183,6 +183,28 @@ app.get("/api/test-env", (req, res) => {
   });
 });
 
+// DEBUG: Check Admin Status
+app.get("/api/debug-admin", async (req, res) => {
+  try {
+    const email = (req.query.email || "").trim().toLowerCase();
+    if (!email) return res.json({ message: "Provide ?email=..." });
+    const user = await Admin.findOne({ email });
+    if (!user) return res.json({ message: "User not found", email });
+    
+    res.json({
+      _id: user._id,
+      email: user.email,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      // Don't show full hash for security, but show if it matches env
+      passwordMatchEnv: user.passwordHash === process.env.ADMIN_PASSWORD_HASH
+    });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 
 // Frontend entry
 app.get("/", (req, res) => {
