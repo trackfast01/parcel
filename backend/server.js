@@ -487,7 +487,12 @@ app.get("/api/chat/:sessionId", async (req, res) => {
     if (!process.env.MONGO_URI) throw new Error("Missing MONGO_URI");
     
     await mongoose.connect(process.env.MONGO_URI);
+    // await mongoose.connect(process.env.MONGO_URI); // logic is below
+
     console.log("✅ MongoDB connected");
+    console.log("DEBUG ENV: MONGO_URI starts with", process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 15) : "undefined");
+    console.log("DEBUG ENV: ADMIN_EMAIL is", process.env.ADMIN_EMAIL);
+
 
     // Seed Super Admin if needed
     const adminEmail = (process.env.ADMIN_EMAIL || "").trim().toLowerCase();
@@ -521,3 +526,6 @@ app.get("/api/chat/:sessionId", async (req, res) => {
   }
 })();
 
+})();
+
+module.exports = app; // Export for Vercel
